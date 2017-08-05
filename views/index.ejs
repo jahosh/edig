@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>E-digger</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <style>
+    body {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .jumbotron {
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+      <div class="jumbotron">
+        <div class="text-center">
+          <h1>E-Diggin</h1>
+          <p class="lead">Easily e-dig from youtube videos</p>
+        </div>
+      </div>
+
+      <form id="e-dig-form">
+
+        <div class="form-group">
+          <label for="exampleInputEmail1">Youtube Link:</label>
+          <input type="text" class="form-control" id="youtube-link-input" placeholder="Video source">
+        </div>
+
+        <div class="form-group">
+          <label for="exampleInputPassword1">Start</label>
+          <input class="form-control" id="video-begin-input" type="text" placeholder="Sample start time in MM:SS e.g 1:30" maxlength="4">
+        </div>
+
+        <div class="form-group">
+          <label for="exampleInputPassword1">End</label>
+          <input class="form-control" id="video-end-input" type="text" placeholder="Sample start end time in MM:SS e.g 3:56, blank defaults to end" maxlength="4">
+        </div>
+
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="text-center">
+            <button id="download-button" class="btn btn-primary">Download</button>
+          </div>
+        </div>
+      </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="/index.js"></script>
+</body>
+</html>

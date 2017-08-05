@@ -1,0 +1,20 @@
+{
+  "name": "edigg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Josh",
+  "license": "ISC",
+  "dependencies": {
+    "archiver": "^2.0.0",
+    "compression": "^1.7.0",
+    "ejs": "^2.5.7",
+    "express": "^4.15.3",
+    "fluent-ffmpeg": "^2.1.2",
+    "ytdl-core": "^0.15.0"
+  }
+}
