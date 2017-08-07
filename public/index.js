@@ -49,8 +49,8 @@ $(document).ready(function() {
     e.preventDefault();
 
     const link = $("#youtube-link-input").val();
-    const start = $("#video-begin-input").val();
-    const end = $("#video-end-input").val();
+    let start = $("#video-begin-input").val();
+    let end = $("#video-end-input").val();
     let full;
 
     if (!link.includes("www.youtube.com")) {
@@ -59,6 +59,7 @@ $(document).ready(function() {
     }
 
     if ($("#full-song-input").is(":checked")) {
+      console.log('should be true!');
       full = true;
     }
 
@@ -72,11 +73,15 @@ $(document).ready(function() {
       return;
     }
 
+    if (!start && !end) {
+      start = "0";
+      end = "0";
+    }
 
     const sTime = msToSecondsOnly(start);
     const eTime = msToSecondsOnly(end);
 
-    if (/^\d+$/.test(sTime) || /^\d+$/.test(eTime) ) {
+    if (/^\d+$/.test(sTime) || /^\d+$/.test(eTime) || full ) {
     } else {
       alert('please use only stringifed numbers in your start/end times');
       return;
@@ -95,8 +100,8 @@ $(document).ready(function() {
 
 
   function requestSample(payload) {
-    const { link, sTime, eTime, download } = payload;
-    let full = download ? true : false;
+    const { link, sTime, eTime, full } = payload;
+
 
     toggleInputs(true);
     $.ajax({
