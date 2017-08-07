@@ -18,8 +18,7 @@ io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
     const { src, start, end, full } = req.query;
     
-    const downloadFull = Boolean(full);
-
+    const downloadFull = (full == 'true');
     const meta = getMetaData(src)
       .then((metadata) => {
         let title = metadata.title;
