@@ -45,10 +45,10 @@
     }
 
     .footer {
-      position:fixed;
-      bottom: 0;
-      border-top: 1px solid black;
       width: 100%;
+      border-top: 1px solid black;
+      height: 25px;
+      margin-bottom: 20px;
     }
 
     .twitter-link {
@@ -90,6 +90,17 @@
     .headline {
       margin-bottom: 5px;
     }
+
+    .site {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+      margin: 0px;
+    }
+
+    .site-content {
+      flex: 1
+    }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js"></script>
@@ -108,8 +119,8 @@
   </script>
 </head>
 
-<body>
-  <div class="container">
+<body class="site">
+  <div class="container site-content">
 
     <div class="row">
       <div class="twelve columns section">
