@@ -2,13 +2,13 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>E-digger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Youtube Sampler</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.css" />
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
     crossorigin="anonymous">
   <style>
-
     body {
       font-size: 20px;
       background-color:white;
@@ -70,9 +70,42 @@
     .twitt {
       display: block;
     }
+
+    .lead {
+      font-size: 16px;
+    }
+
+    #download-button {
+      display: none;
+    }
+
+    #next-button {
+      display: none;
+    }
+
+    input:disabled {
+      background-color: #F5FCFF;
+    }
+
+    .headline {
+      margin-bottom: 5px;
+    }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function (i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+      m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-85778935-3', 'auto');
+    ga('send', 'pageview');
+
+  </script>
 </head>
 
 <body>
@@ -83,8 +116,8 @@
 
         <div class="">
           <div class="text-center">
-            <h1>YouTube Sampler</h1>
-            <p class="lead">Easily e-sample youtube videos</p>
+            <h1 class="headline">YouTube Sampler</h1>
+            <p class="lead">e-sample from youtube videos</p>
           </div>
         </div>
       </div>
@@ -95,6 +128,7 @@
           <div class="row">
             <div class="twelve colums form-section">
               <div id="track-title"></div>
+              <div id="track-image"></div>
               <label class="form-labels" for="youtube-link-input">Youtube Link:</label>
               <input type="text" class="form-control" id="youtube-link-input" placeholder="e.g https://www.youtube.com/watch?v=cv1B0ejhFVE">
             </div>
@@ -113,26 +147,30 @@
           </div>
 
           <label class="example-send-yourself-copy">
-            <input type="checkbox" class="tooltip" title="when this is checked, the full song will be downloaded">
+            <input type="checkbox" class="tooltip" id="full-song-input" title="when this is checked, the full song will be downloaded">
             <span class="label-body tooltip">Download full song</span>
           </label>
 
 
             <div id="submit-button" class="form-section">
-              <button type="submit" class="tooltip" title="request sample">Submit</button>
+              <div id="loading"></div>
+              <button type="submit" id="submit" class="tooltip" title="request sample">Submit</button>
             </div>
         </form>
       </div>
 
       <div class="row">
         <div class="form-section">
-          <button id="download-button" class="button-primary">Download</button>
+          <button id="download-button" class="button-primary tooltip" title="download sample!">Download</button>
+          <button id="next-button">Start Over</button>
         </div>
       </div>
   </div>
   <div class="footer">
    <a href="https://twitter.com/jahoshuma" target="_blank" class="twitter-link">by @jahoshuma</a>
   </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.4.2/nanobar.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
   <script src="/index.js"></script>
 </body>
 </html>
