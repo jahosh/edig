@@ -7,6 +7,7 @@ const express = require('express');
 const compression = require('compression');
 const slugify = require('slugify');
 const morgan = require('morgan');
+const helmet = require('helmet');
 
 const app = express();
 
@@ -14,10 +15,8 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
 io.on('connection', (socket) => {
-
   app.get('/dig', (req, res) => {
     const { src, start, end, full } = req.query;
-    
     const downloadFull = (full == 'true');
     const meta = getMetaData(src)
       .then((metadata) => {
@@ -61,6 +60,8 @@ app.set('view engine', 'ejs');
 app.use(compression())
 app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev'));
+app.use(helmet());
+
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -70,6 +71,10 @@ app.get('/', (req, res) => {
 app.get('/download', (req, res) => {
   const { link } = req.query;
 
+  if (!link || !link.includes('temp')) {
+    res.redirect('/');
+    return;
+  }
   res.download(link, function (err) {
     if (err) {
       console.log(err);
@@ -145,11 +150,10 @@ function processVideo(vid, full, name, start, end, length) {
     start = 0;
     end = length;
   }
-  console.log(start, end);
+
   return ffmpeg(vid)
     .noVideo()
     .audioCodec('libmp3lame')
-    .audioBitrate(320)
     .seekInput(start)
     .duration(end - start)
     .output(`temp/${name}`);

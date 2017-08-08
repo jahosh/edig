@@ -59,7 +59,6 @@ $(document).ready(function() {
     }
 
     if ($("#full-song-input").is(":checked")) {
-      console.log('should be true!');
       full = true;
     }
 
