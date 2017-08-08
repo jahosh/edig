@@ -154,6 +154,7 @@ function processVideo(vid, full, name, start, end, length) {
   return ffmpeg(vid)
     .noVideo()
     .audioCodec('libmp3lame')
+    .audioBitrate(320)
     .seekInput(start)
     .duration(end - start)
     .output(`temp/${name}`);
