@@ -25,6 +25,16 @@ $(document).ready(function() {
   var socket = io.connect();
   const nanobar = new Nanobar();
 
+  $("#slideshow > div:gt(0)").hide();
+  // setInterval(function () {
+  //   $('#slideshow > div:first')
+  //     .fadeOut(3000)
+  //     .next()
+  //     .fadeIn(3000)
+  //     .end()
+  //     .appendTo('#slideshow');
+  // }, 2000);
+
   socket.on('progress', (progress) => {
     nanobar.go(progress);
   });
@@ -32,7 +42,6 @@ $(document).ready(function() {
   $("#download-button").hide();
 
   $('.tooltip').tooltipster({
-    side: 'left',
   });
 
   $("#full-song-input").click(() => {

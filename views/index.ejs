@@ -18,114 +18,14 @@
   <meta property="og:description" content="A simple website that allows you to easily e-sample off youtube" />
   <meta property="og:site_name" content="ytsampler" />
 
+  <link rel="icon" href="/favicon.ico?v=5">
 
   <title>Youtube Sampler</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.css" />
-  <link rel="icon" href="/favicon.ico?v=5">
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
-    crossorigin="anonymous">
-  <style>
-    body {
-      font-size: 20px;
-      background-color:white;
-      color:#343840;
-    }
+   <link rel="stylesheet" type="text/css" href="/stylesheets/360player.css" /> 
+  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
 
-    .jumbotron {
-      margin-top: 10px;
-    }
-
-    .box {
-      border: 1px solid red;
-    }
-
-    .section {
-      padding: 5rem 0 7rem;
-      text-align: center;
-    }
-
-    .form-section {
-      text-align: center;
-    }
-
-    #youtube-link-input {
-      width: 100%;
-    }
-
-    #submit-button {
-      margin-top: 50px;
-    }
-
-    .form-labels {
-      float: left;
-    }
-
-    .footer {
-      width: 100%;
-      border-top: 1px solid black;
-      height: 25px;
-      margin-bottom: 20px;
-    }
-
-    .twitter-link {
-      height: 50px;
-      font-size: 12px;
-      background-color: #1e99e6;
-      color: white;
-      border-radius: 3px;
-      font-weight:400;
-      line-height: 50px;
-      padding: 5px 6px;
-      cursor: pointer;
-    }
-
-    .twitter-link:hover {
-      color:white;
-    }
-
-    .twitt {
-      display: block;
-    }
-
-    .lead {
-      font-size: 16px;
-    }
-
-    #download-button {
-      display: none;
-      margin-bottom: 15px;
-    }
-
-    #next-button {
-      display: none;
-    }
-
-    input:disabled {
-      background-color: #F5FCFF;
-    }
-
-    .headline {
-      margin-bottom: 5px;
-    }
-
-    .site {
-      display: flex;
-      min-height: 100vh;
-      flex-direction: column;
-      margin: 0px;
-      justify-content: center;
-    }
-
-    .site-content {
-      flex: 1
-    }
-
-    .final-buttons {
-      margin: auto;
-    }
-    
-</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -139,37 +39,49 @@
 
     ga('create', 'UA-85778935-3', 'auto');
     ga('send', 'pageview');
-
   </script>
 </head>
 
 <body class="site">
-  <div class="container site-content">
-
-    <div class="row">
-      <div class="twelve columns section">
-
-        <div class="">
-          <div class="text-center">
-            <h1 class="headline">YouTube Sampler</h1>
-            <p class="lead">e-digg youtube videos</p>
+  <div class="site-content">
+    <div class="container u-max-full-width">
+      <div class="row">
+        <div class="twelve columns">
+          <div class="header u-pull-left">
+            <h1 id="title">YouTube Sampler</h1>
+            <img height="64" width="64" src="/ytLogo.gif" />
+            <br />
+            <span class="lead">e-digg youtube videos</span>
           </div>
+              <div class="total-samples u-pull-right">
+                SAMPLES DUG:
+                <%= total %>
+              </div>
         </div>
       </div>
     </div>
-    
-    <div class="row">
-        <form id="e-dig-form">
-          <div class="row">
-            <div class="twelve colums form-section">
-              <div id="track-title"></div>
-              <div id="track-image"></div>
-              <label class="form-labels" for="youtube-link-input">Youtube Link:</label>
-              <input type="text" class="form-control" id="youtube-link-input" placeholder="e.g https://www.youtube.com/watch?v=cv1B0ejhFVE">
-            </div>
-          </div>
 
-          <div class="row">
+    <div class="form container u-max-full-width">
+      <div class="row">
+        <div class="twelve columns">
+          <div class="u-pull-right">
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    <div id="yt_form" class="container u-max-full-width">
+      <form id="e-dig-form">
+        <div class="row">
+          <div class="twelve colums form-section">
+            <label class="form-labels" for="youtube-link-input">Youtube Link:</label>
+            <input type="text" class="form-control" id="youtube-link-input" placeholder="e.g https://www.youtube.com/watch?v=cv1B0ejhFVE">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="start-end-form-inputs">
             <div class="six columns form-section">
               <label class="form-labels" for="video-begin-input">Start</label>
               <input class="u-full-width" id="video-begin-input" type="text"  placeholder="Sample start time in MM:SS e.g 1:30" maxlength="4">
@@ -180,32 +92,119 @@
               <input class="u-full-width" id="video-end-input" type="text" placeholder="Sample end time in MM:SS e.g 3:56, blank defaults to end" maxlength="4">
             </div>
           </div>
+        </div>
 
-          <label class="example-send-yourself-copy">
-            <input type="checkbox" class="tooltip" id="full-song-input" title="when this is checked, the full song will be downloaded">
-            <span class="label-body tooltip">Download full song</span>
-          </label>
-
-
-            <div id="submit-button" class="form-section">
-              <div id="loading"></div>
-              <button type="submit" id="submit" class="tooltip" title="request sample">Submit</button>
-            </div>
-        </form>
-      </div>
-
+        <div class="row">
+          <input type="checkbox" class="tooltip" id="full-song-input" title="when this is checked, the full song will be downloaded">
+          <span class="label-body tooltip">Download full song</span>
+          <div id="submit-button" class="form-section">
+            <div id="loading"></div>
+            <button type="submit" id="submit" class="button tooltip" title="request sample">Submit</button>
+          </div>
+        </div>
+      </form>
       <div class="row">
         <div class="form-section final-buttons">
-          <button id="download-button" class="button-primary tooltip final-buttons" title="download sample!">Download</button>
+          <button id="download-button" class="button button-primary tooltip final-buttons" title="download sample!">Download</button>
           <button id="next-button" class="final-buttons">Start Over</button>
         </div>
       </div>
+    </div>
   </div>
+
+
+   <div class="row"> 
+    <div id="recently-sampled-title" class="">
+      <span >
+        <h3>Recently sampled</h3>
+      </span>
+      <ul class="flex-container center">
+      <% samples.forEach((sample, i ) => { %>
+          <li class="sample-card">
+            <div class="sample-stats">
+              <span class="sample-number">#<%= i+1 %></span>
+              <span class="sample-date"><%= sample.created_at%></span>
+            </div>
+             <!-- <div class="u-cf"></div>  -->
+            <div class="sample-title">
+            <a href="<%= sample.src %>" class="sample-link" target="_blank"><%= sample.title.substring(0, 25) %></a>
+            </div>
+            <div class="sample-image">
+              <img  src="<%= sample.thumbnail %>" /> 
+            </div>
+            <!-- <a href="<%= sample.src %>"></a> -->
+            <div class="sample-player ui360">
+              <a href="play?sample=<%= sample.sample_src %>"></a>
+            </div> 
+          </li>
+      <% }) %>
+        </ul>
+    </div> 
+  </div>  
+
+
+
+
   <div class="footer">
-   <a href="https://twitter.com/jahoshuma" target="_blank" class="twitter-link">by @jahoshuma</a>
+    <a href="https://twitter.com/jahoshuma" target="_blank" class="twitter-link">by @jahoshuma</a>
   </div>
+
+
+  <!--Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.4.2/nanobar.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+   <script type="text/javascript" src="scripts/berniecode-animator.js"></script> 
+  <script src="/lib/soundmanager2.js"></script>
+  <script src="scripts/360player.js"></script>
   <script src="/index.js"></script>
+
 </body>
 </html>
+
+
+<!-- 
+    <div class="row">
+      <div id="recent-sample" class=" debug twelve columns">
+        <! <h6><span id="samples-title">Recently Sampled</span></h6> -->
+        <!-- <ul>
+          <% samples.forEach(sample => { %>
+            <li>
+              <div>
+                <span id="recent-samples-title"><%= sample.title %></span>
+                <img class="recent-samples" src="<%= sample.thumbnail %>" />
+                <br />
+                <a href="<%= sample.src %>">
+              </a>
+                <hr />
+                <div class="ui360">
+                  <a href="play?sample=<%= sample.sample_src %>"></a>
+                </div>
+              </div>
+            </li>
+            <% }) %>
+        </ul>
+      </div> -->
+    <!-- </div> --> 
+
+<!-- 
+        <div id="recent-samples">
+          <ul id="sample-list">
+            <% samples.forEach(sample => { %>
+              <li>
+                <div class="sample">
+                  <div>
+                    <img class="recent-sample-img" src="<%= sample.thumbnail %>" />
+                  </div>
+                  <div>
+                    <div class="ui360">
+                      <a href="play?sample=<%= sample.sample_src %>"></a>
+                    </div>
+                    <div>
+                      <! <! <%= sample.title %> -->
+                    <!-- </div> -->
+              <!-- </li> -->
+              <!-- <% }) %> -->
+          <!-- </ul> -->
+
+          <!-- </div> --> 
+

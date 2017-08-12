@@ -8,11 +8,17 @@ const compression = require('compression');
 const slugify = require('slugify');
 const morgan = require('morgan');
 const helmet = require('helmet');
+const Model = require('objection').Model;
+const knexConfig = require('./knexfile');
+const Knex = require('knex');
 
 const app = express();
-
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+
+const Sample = require('./models/Sample');
+const knex = Knex(knexConfig['development']);
+Model.knex(knex);
 
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
@@ -25,11 +31,15 @@ io.on('connection', (socket) => {
         let thumbnail = metadata.thumbnail_url;
         let endTime = end > length ? length : end;
 
+        const sample = { title, thumbnail, src };
+
+      
         dlVid(src, io)
           .then((vid) => {
             const randomId = randomGen();
             const name = slugify(`${title}-${randomId}.mp3`);
             const command = processVideo(vid, downloadFull, name, start, end, length);
+            sample.sample_src = name;
 
             command.run();
             command.on('error', (err, stdout, stderr) => {
@@ -37,6 +47,14 @@ io.on('connection', (socket) => {
               res.send(JSON.stringify('error'))
             });
             command.on('end', () => {
+
+              Sample
+                .query()
+                .insertAndFetch(sample)
+                .catch(e => {
+                  console.log(e);
+                });
+
               res.end(JSON.stringify({
                 link: `temp/${name}`,
                 title,
@@ -64,7 +82,27 @@ app.use(helmet());
 
 
 app.get('/', (req, res) => {
-  res.render('index');
+  const samples = Sample
+    .query()
+    .orderBy('id', 'desc')
+    .skipUndefined()
+    .limit(6)
+    .then(samples => {
+      // console.log(samples);
+      Sample
+        .query()
+        .count('id')
+        .first()
+        .then(count => {
+          let total = count['count(`id`)']
+          res.render('index', { samples, total });
+        })
+        .catch(e => {
+          res.render('something went wrong');
+        })
+    })
+    .catch(e => res.render('something went wrong'));
+  // res.render('index');
 });
 
 
@@ -79,21 +117,35 @@ app.get('/download', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      try {
-        fs.unlink(link, (err) => {
-          if (err) {
-            console.log(err);
-            res.end();
-          } else {
-            res.end('file downloaded');
-          }
-        });
-      } catch(e) {
-        console.log(e);
-      }
+      // try {
+      //   fs.unlink(link, (err) => {
+      //     if (err) {
+      //       console.log(err);
+      //       res.end();
+      //     } else {
+      //       res.end('file downloaded');
+      //     }
+      //   });
+      // } catch(e) {
+      //   console.log(e);
+      // }
     }
   });
 });
+
+app.get('/play', (req, res) => {
+  const { sample } = req.query;
+  const exists = fs.existsSync(`temp/${sample}`);
+  console.log(exists);
+
+  if (!exists) {
+    res.end('no file');
+  } else {
+    const file = fs.createReadStream(`temp/${sample}`);
+    file.pipe(res);
+  }
+
+})
 
 server.listen(3000, () => {
   console.log('listening on 3000');
@@ -113,7 +165,7 @@ function dlVid(src, socket) {
       });
       
       dl.on('info', (info) => {
-        
+
       });
 
       dl.on('end', () => {
