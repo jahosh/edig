@@ -2,6 +2,7 @@ const fs = require('fs');
 const ytdl = require('ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
 const archiver = require('archiver');
+const dotenv = require('dotenv');
 const os = require('os');
 const express = require('express');
 const compression = require('compression');
@@ -11,15 +12,14 @@ const helmet = require('helmet');
 const Model = require('objection').Model;
 const knexConfig = require('./knexfile');
 const Knex = require('knex');
-
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
+dotenv.load();
 const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['development']);
+const knex = Knex(knexConfig['production']);
 Model.knex(knex);
-
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
     const { src, start, end, full } = req.query;
@@ -33,7 +33,6 @@ io.on('connection', (socket) => {
 
         const sample = { title, thumbnail, src };
 
-      
         dlVid(src, io)
           .then((vid) => {
             const randomId = randomGen();
@@ -98,11 +97,14 @@ app.get('/', (req, res) => {
           res.render('index', { samples, total });
         })
         .catch(e => {
+          console.log(e);
           res.render('something went wrong');
         })
     })
-    .catch(e => res.render('something went wrong'));
-  // res.render('index');
+    .catch(e => {
+      console.log(e);
+      res.render('something went wrong')
+    });
 });
 
 
@@ -144,8 +146,7 @@ app.get('/play', (req, res) => {
     const file = fs.createReadStream(`temp/${sample}`);
     file.pipe(res);
   }
-
-})
+});
 
 server.listen(3000, () => {
   console.log('listening on 3000');
