@@ -43,20 +43,23 @@
 </head>
 
 <body class="site">
+  <div id="chrome-ribbon" class="u-pull-left">
+    <a href="https://chrome.google.com/webstore/detail/youtubesampler/mkpbmhfkieafamnphdedkmmekjegiodc" target="_blank"><img style="position: absolute; top: 10; left: 20; border: 0;" src="/chrome_ribbon.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"></a>
+  </div>
   <div class="site-content">
     <div class="container u-max-full-width">
       <div class="row">
-        <div class="twelve columns">
+        <div id="main-header" class="twelve columns">
           <div class="header u-pull-left">
             <h1 id="title">YouTube Sampler</h1>
-            <img height="64" width="64" src="/ytLogo.gif" />
+            <img class="record-logo" height="64" width="64" src="/ytLogo.gif" />
             <br />
             <span class="lead">e-digg youtube videos</span>
           </div>
-              <div class="total-samples u-pull-right">
-                SAMPLES DUG:
-                <%= total %>
-              </div>
+          <div class="total-samples u-pull-right">
+            SAMPLES DUG:
+            <%= total %>
+          </div>
         </div>
       </div>
     </div>
@@ -112,8 +115,7 @@
     </div>
   </div>
 
-
-   <div class="row"> 
+  <div class="row"> 
     <div id="recently-sampled-title" class="">
       <span >
         <h3>Recently sampled</h3>
@@ -125,14 +127,12 @@
               <span class="sample-number">#<%= i+1 %></span>
               <span class="sample-date"><%= sample.created_at%></span>
             </div>
-             <!-- <div class="u-cf"></div>  -->
             <div class="sample-title">
             <a href="<%= sample.src %>" class="sample-link" target="_blank"><%= sample.title.substring(0, 25) %></a>
             </div>
             <div class="sample-image">
               <img  src="<%= sample.thumbnail %>" /> 
             </div>
-            <!-- <a href="<%= sample.src %>"></a> -->
             <div class="sample-player ui360">
               <a href="play?sample=<%= sample.sample_src %>"></a>
             </div> 
@@ -142,13 +142,9 @@
     </div> 
   </div>  
 
-
-
-
   <div class="footer">
     <a href="https://twitter.com/jahoshuma" target="_blank" class="twitter-link">by @jahoshuma</a>
   </div>
-
 
   <!--Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.4.2/nanobar.min.js"></script>
@@ -160,51 +156,4 @@
 
 </body>
 </html>
-
-
-<!-- 
-    <div class="row">
-      <div id="recent-sample" class=" debug twelve columns">
-        <! <h6><span id="samples-title">Recently Sampled</span></h6> -->
-        <!-- <ul>
-          <% samples.forEach(sample => { %>
-            <li>
-              <div>
-                <span id="recent-samples-title"><%= sample.title %></span>
-                <img class="recent-samples" src="<%= sample.thumbnail %>" />
-                <br />
-                <a href="<%= sample.src %>">
-              </a>
-                <hr />
-                <div class="ui360">
-                  <a href="play?sample=<%= sample.sample_src %>"></a>
-                </div>
-              </div>
-            </li>
-            <% }) %>
-        </ul>
-      </div> -->
-    <!-- </div> --> 
-
-<!-- 
-        <div id="recent-samples">
-          <ul id="sample-list">
-            <% samples.forEach(sample => { %>
-              <li>
-                <div class="sample">
-                  <div>
-                    <img class="recent-sample-img" src="<%= sample.thumbnail %>" />
-                  </div>
-                  <div>
-                    <div class="ui360">
-                      <a href="play?sample=<%= sample.sample_src %>"></a>
-                    </div>
-                    <div>
-                      <! <! <%= sample.title %> -->
-                    <!-- </div> -->
-              <!-- </li> -->
-              <!-- <% }) %> -->
-          <!-- </ul> -->
-
-          <!-- </div> --> 
 

@@ -5,6 +5,10 @@ html body {
 }
 .total-samples {
   font-weight: bold;
+  margin-top: 30px;
+}
+.record-logo {
+  margin-top: 30px;
 }
 .section {
   text-align: center;
@@ -25,6 +29,7 @@ html body {
 #title {
   font-size: 34px;
   border-bottom: 1px solid black;
+  margin-top: 30px;
 }
 #total {
   display: block;
@@ -40,6 +45,9 @@ html body {
 }
 .row {
   height: 100%;
+}
+#main-header {
+  margin-top: 20px;
 }
 .jumbotron {
   margin-top: 10px;
@@ -109,7 +117,6 @@ input:disabled {
   flex: 1;
   width: 100%;
 }
-
 .final-buttons {
   margin: auto;
 }
@@ -222,6 +229,9 @@ hr {
   .sm2-360ui {
     float: none;
   }
+  #chrome-ribbon {
+    display: none;
+  }
 }
 
 @media (min-width: 768px) {
@@ -258,6 +268,9 @@ hr {
   }
   #yt_form {
     margin-top: 75px;
+  }
+  #chrome-ribbon {
+    display: initial;
   }
 }
 
