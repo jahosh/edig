@@ -81,25 +81,31 @@ app.use(helmet());
 
 
 app.get('/', (req, res) => {
+
+  let { page } = req.query;
+
+  if (!page) {
+    page = 0
+    currentPage = 1;
+  }
+
   const samples = Sample
     .query()
     .orderBy('id', 'desc')
+    .page(page, 6)
     .skipUndefined()
     .limit(6)
     .then(samples => {
-      // console.log(samples);
-      Sample
-        .query()
-        .count('id')
-        .first()
-        .then(count => {
-          let total = count['count(`id`)']
-          res.render('index', { samples, total });
-        })
-        .catch(e => {
-          console.log(e);
-          res.render('something went wrong');
-        })
+      let total = samples.total;
+      let finalSamples = samples.results;
+      let totalPages = Number(Math.floor(total/6));
+      let currentPage = Number(page);
+      let endPage = Number(page) + 5;
+
+      if (currentPage === totalPages) {
+        endPage = currentPage;
+      }
+      res.render('index', { samples: finalSamples, total, totalPages, currentPage, endPage });
     })
     .catch(e => {
       console.log(e);
@@ -138,7 +144,6 @@ app.get('/download', (req, res) => {
 app.get('/play', (req, res) => {
   const { sample } = req.query;
   const exists = fs.existsSync(`temp/${sample}`);
-  console.log(exists);
 
   if (!exists) {
     res.end('no file');

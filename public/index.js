@@ -21,13 +21,50 @@ $(document).ready(function() {
     , hwaccel: false // Whether to use hardware acceleration
     , position: 'absolute' // Element positioning
   }
-  
   var socket = io.connect();
   const nanobar = new Nanobar();
   socket.on('progress', (progress) => {
     nanobar.go(progress);
   });
+  $(".sample-player").toggle();
   $("#download-button").hide();
+  let currentPage = getUrlParameter('page');
+  let totalPages = $("#total-pages").text();
+
+
+  if (!currentPage || currentPage === '0') {
+    //add disabled class to prev arrow - this means we are on homepage
+    $("#prev").addClass('disabled');
+    $("#prev").removeClass('arrows');
+    $(`.0`).addClass('active-page');
+  } else {
+    // set the current page as active
+    $(`.${currentPage}`).addClass('active-page');
+  }
+
+  if (currentPage === totalPages) {
+    $("#next").addClass('disabled');
+    $("#next").removeClass('arrows');
+    $("#next").attr("title", "end of the road!");
+    $(`.${totalPages}`).addClass('active-page');
+  }
+
+
+  $("#next").on('click', () => {
+    if ($("#next").hasClass('disabled')) {
+      return;
+    }
+    const page = getUrlParameter('page');
+    fetchMoreSamples(Number(page) + 1);
+  });
+
+  $("#prev").on('click', () => {
+    if ($("#prev").hasClass('disabled')) {
+      return;
+    }
+    const page = getUrlParameter('page');
+    fetchMoreSamples(Number(page) - 1);
+  });
 
   $('.tooltip').tooltipster({
   });
@@ -119,7 +156,6 @@ $(document).ready(function() {
         const start = $("#video-begin-input").val('0:00');
         const end = $("#video-end-input").val('');
 
-
         showInfo(result.title, result.thumbnail);
         handleDownload(result.link);
       } 
@@ -163,5 +199,17 @@ $(document).ready(function() {
     $("#video-begin-input").prop('disabled', flag);
     $("#video-end-input").prop('disabled', flag);
   }
+
+  function fetchMoreSamples(page) {
+    console.log('fired!');
+    window.location.href = `http://localhost:3000?page=${page}`;
+  }
+
+  function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  };
 
 });

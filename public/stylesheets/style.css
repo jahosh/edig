@@ -3,6 +3,50 @@ html body {
   width: 100%;
   background-color: #F4F4F4;
 }
+.sample-date {
+  font-size: 12px;
+  color: black;
+}
+.sample-number {
+  color: black;
+}
+.arrows {
+  color: #333333;
+  margin-bottom: 15px;
+}
+.arrows:hover {
+  color: #605f5f;
+  cursor: pointer;
+}
+.page-link {
+  color: black;
+  text-decoration: none;
+}
+.active-page {
+  color: red;
+  font-style: bold;
+}
+#page-numbers {
+ 
+  text-align: center;
+}
+#page-number-list {
+  list-style-type: none;
+      margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.page-number {
+  text-align: center;
+  font-size: 1.4em;
+  padding: 5px;
+  margin: 5px;
+}
+.disabled {
+  color: grey;
+  cursor: not-allowed;
+  margin-bottom: 15px;
+}
 .total-samples {
   font-weight: bold;
   margin-top: 30px;
@@ -154,12 +198,13 @@ hr {
   background-color: #FFFFFF;
   border-radius: 25px;
   width: 200px;
-  height: 250x;
+  height: 300px;
   padding: 10px;
   margin: 5px;
   margin-bottom:15px;
   color: black;
   font-weight: bold;
+  text-align: center;
 }
 .flex-container {
   width: 100%;
@@ -175,6 +220,9 @@ hr {
 }
 
 @media (min-width: 300px) {
+  #title {
+    margin-bottom: 30px;
+  }
   .flex-container {
     flex-direction: column;
   }
@@ -195,6 +243,7 @@ hr {
   }
   #recently-sampled-title h3 {
     font-weight: bold;
+    margin-bottom: 0px;
   }
   #e-dig-form {
     display: none;
@@ -225,6 +274,9 @@ hr {
   }
   .sample-player {
     text-align: center;
+    display: none;
+    margin-top: 5px;
+    padding: 10px;
   }
   .sm2-360ui {
     float: none;
@@ -235,6 +287,15 @@ hr {
 }
 
 @media (min-width: 768px) {
+  #next {
+    margin-right: 80px;
+  }
+  #prev {
+    margin-left: 80px;
+  }
+  input {
+    font-size: 1em;
+  }
   #e-dig-form {
     display: block;
   }
@@ -256,12 +317,12 @@ hr {
     margin-bottom: 5px;
     text-align: center;
     display: block;
+    padding-bottom: 5px;
+    cursor: pointer;
   }
   .sample-number {
     font-size: 16px;
-  }
-  .sample-date {
-    font-size: 12px;
+    color: black;
   }
   #recently-sampled-title {
     margin-top: 5px;

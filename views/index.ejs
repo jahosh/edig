@@ -21,10 +21,12 @@
   <link rel="icon" href="/favicon.ico?v=5">
 
   <title>Youtube Sampler</title>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+    crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.css" />
-   <link rel="stylesheet" type="text/css" href="/stylesheets/360player.css" /> 
-  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+  <link rel="stylesheet" type="text/css" href="/stylesheets/360player.css" /> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
+  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js"></script>
@@ -44,21 +46,19 @@
 
 <body class="site">
   <div id="chrome-ribbon" class="u-pull-left">
-    <a href="https://chrome.google.com/webstore/detail/youtubesampler/mkpbmhfkieafamnphdedkmmekjegiodc" target="_blank"><img style="position: absolute; top: 10; left: 20; border: 0;" src="/chrome_ribbon.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"></a>
+    <a href="https://chrome.google.com/webstore/detail/youtubesampler/mkpbmhfkieafamnphdedkmmekjegiodc" target="_blank"><img style="position: absolute; top: 10; left: 20; border: 0;" src="/chrome_ribbon.png" alt="Download chrome extension"></a>
   </div>
   <div class="site-content">
     <div class="container u-max-full-width">
       <div class="row">
         <div id="main-header" class="twelve columns">
+            <div class="total-samples u-pull-right tooltip" title="total samples created">
+              SAMPLES DUG:
+              <%= total %>
+            </div>
           <div class="header u-pull-left">
             <h1 id="title">YouTube Sampler</h1>
             <img class="record-logo" height="64" width="64" src="/ytLogo.gif" />
-            <br />
-            <span class="lead">e-digg youtube videos</span>
-          </div>
-          <div class="total-samples u-pull-right">
-            SAMPLES DUG:
-            <%= total %>
           </div>
         </div>
       </div>
@@ -92,7 +92,7 @@
 
             <div class="six columns form-section">
               <label class="form-labels" for="exampleInputPassword1">End</label>
-              <input class="u-full-width" id="video-end-input" type="text" placeholder="Sample end time in MM:SS e.g 3:56, blank defaults to end" maxlength="4">
+              <input class="u-full-width" id="video-end-input" type="text" placeholder="Sample end time in MM:SS e.g 3:56" maxlength="4">
             </div>
           </div>
         </div>
@@ -117,14 +117,37 @@
 
   <div class="row"> 
     <div id="recently-sampled-title" class="">
-      <span >
+      <span>
         <h3>Recently sampled</h3>
       </span>
+      <div id="page-numbers">
+          <% for (let i=currentPage; i < endPage; i++) {%>
+            <% if (i === totalPages) {%>
+              <% continue; %>
+            <% } %>  
+            <% if (i <= totalPages) {%>
+              <span style="text-align:center;" class='page-number <%= i %>'>
+                <a class="page-link <%= i %>" href='/?page=<%= i %>'><%= i %> </a>
+              </span>
+            <% } %>
+          <% } %>
+          ....
+          <span class='page-number'>
+            <a id="total-pages" class="page-link <%= totalPages %>" href='/?page=<%= totalPages %>'><%= totalPages %><a/>
+          </span>
+      </div>
+    </div>
+    <div id="next" class="u-pull-right tooltip arrows" title="more samples!">
+      <i class="fa fa-arrow-right fa-3x" aria-hidden="true"></i>
+    </div>
+    <div id="prev" class="arrows">
+      <i class="fa fa-arrow-left fa-3x" aria-hidden="true"></i>
+    </div>
       <ul class="flex-container center">
       <% samples.forEach((sample, i ) => { %>
           <li class="sample-card">
             <div class="sample-stats">
-              <span class="sample-number">#<%= i+1 %></span>
+              <span class="sample-number">#<%= sample.id %></span>
               <span class="sample-date"><%= sample.created_at%></span>
             </div>
             <div class="sample-title">
@@ -133,6 +156,7 @@
             <div class="sample-image">
               <img  src="<%= sample.thumbnail %>" /> 
             </div>
+
             <div class="sample-player ui360">
               <a href="play?sample=<%= sample.sample_src %>"></a>
             </div> 
