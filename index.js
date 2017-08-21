@@ -19,7 +19,7 @@ const cookieParser = require('cookie-parser');
 
 dotenv.load();
 const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['development']);
+const knex = Knex(knexConfig['production']);
 Model.knex(knex);
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {

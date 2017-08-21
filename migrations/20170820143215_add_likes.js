@@ -1,7 +1,7 @@
 exports.up = function (knex, Promise) {
   return knex.raw('SET foreign_key_checks = 0;')
     .then(() => {
-      return knex.schema.table('Sample', (table) => {
+      return knex.schema.table('sample', (table) => {
         table.integer('likes').defaultTo(0);
       });
     });
