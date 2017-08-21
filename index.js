@@ -15,10 +15,11 @@ const Knex = require('knex');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+const cookieParser = require('cookie-parser');
 
 dotenv.load();
 const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['production']);
+const knex = Knex(knexConfig['development']);
 Model.knex(knex);
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
@@ -74,15 +75,16 @@ io.on('connection', (socket) => {
 });
 
 app.set('view engine', 'ejs');
-app.use(compression())
+app.use(cookieParser());
+app.use(compression());
 app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev'));
 app.use(helmet());
 
 
 app.get('/', (req, res) => {
-
   let { page } = req.query;
+  let cookies = req.cookies;
 
   if (!page) {
     page = 0
@@ -105,7 +107,14 @@ app.get('/', (req, res) => {
       if (currentPage === totalPages) {
         endPage = currentPage;
       }
-      res.render('index', { samples: finalSamples, total, totalPages, currentPage, endPage });
+      try {
+        cookies = Object.keys(cookies).map(key => cookies[key] = key);
+
+      } catch(e) {
+        console.log(e);
+      }
+      
+      res.render('index', { samples: finalSamples, total, totalPages, currentPage, endPage, cookies });
     })
     .catch(e => {
       console.log(e);
@@ -115,12 +124,17 @@ app.get('/', (req, res) => {
 
 
 app.get('/download', (req, res) => {
-  const { link } = req.query;
+  let { link, slug } = req.query;
+
+  if (slug) {
+    link = 'temp/' + slugify(`${link}`);
+  }
 
   if (!link || !link.includes('temp')) {
     res.redirect('/');
     return;
   }
+
   res.download(link, function (err) {
     if (err) {
       console.log(err);
@@ -152,6 +166,30 @@ app.get('/play', (req, res) => {
     file.pipe(res);
   }
 });
+
+app.post('/like/:id', (req, res) => {
+  const { id } = req.params;
+
+  if (req.cookies[`_yts-like-${id}`]) {
+    res.end('already liked!');
+    return;
+  }
+
+  Sample
+    .query()
+    .where('id', '=', id)
+    .increment('likes', 1)
+    .then((s) => {
+      if(s === 1) {
+        res.cookie(`_yts-like-${id}`, 'true', {expire: new Date() + 9999});
+        res.status(201).end();
+        console.log(s);
+      }
+    })
+    .catch(e => {
+      console.log(e);
+    });
+})
 
 server.listen(3000, () => {
   console.log('listening on 3000');

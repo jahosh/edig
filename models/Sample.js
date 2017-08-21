@@ -19,7 +19,8 @@ class Sample extends Model {
         thumbnail: { type: 'string'},
         sample_src: { type: 'string' },
         src: { type: 'string' },
-        total_samples: { type: 'integer' }
+        total_samples: { type: 'integer' },
+        likes: { type: 'integer' }
       }
     };
   }

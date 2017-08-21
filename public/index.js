@@ -42,6 +42,7 @@ $(document).ready(function() {
     $(`.${currentPage}`).addClass('active-page');
   }
 
+
   if (currentPage === totalPages) {
     $("#next").addClass('disabled');
     $("#next").removeClass('arrows');
@@ -67,6 +68,35 @@ $(document).ready(function() {
   });
 
   $('.tooltip').tooltipster({
+  });
+
+  $(".download-sample-btn").on("click", (e) => {
+    const sample = e.target.attributes[1].nodeValue;
+    const url = $(`.full-title-${sample}`).text();
+    window.open(`/download?link=${url}&slug=true`);
+  });
+
+  $(".like-sample-btn").on("click", (e) => {
+    const sampleId = e.target.attributes[2].nodeValue;
+    const cookies = document.cookie.split(" ");
+
+    if (cookies.includes(`_yts-like-${sampleId}=true;`)) {
+      alert('you already liked this');
+      return;
+    }
+
+    $.post({
+      url: `/like/${sampleId}`,
+      error: (err) => {
+        console.log(err);
+      },
+      success: (resp) => {
+        let likes = $(`#total-likes-${sampleId}`).text();
+        let newTotal = Number(likes) + 1;
+        $(`#total-likes-${sampleId}`).text(`${newTotal}`);
+        $(`#thumbs-up-${sampleId}`).addClass('liked');
+      }
+    });
   });
 
   $("#full-song-input").click(() => {
@@ -201,8 +231,7 @@ $(document).ready(function() {
   }
 
   function fetchMoreSamples(page) {
-    console.log('fired!');
-    window.location.href = `http://localhost:3000?page=${page}`;
+    window.location.href = `https://ytsampler.com/?page=${page}`;
   }
 
   function getUrlParameter(name) {

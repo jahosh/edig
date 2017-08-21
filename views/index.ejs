@@ -3,19 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A tool that makes it easy for producers to e-sample off of youtube." />
+  <meta name="description" content="Youtube Sampler: The Best Way To Sample Audio From Youtube" />
+  <meta name="keywords" content="sampling,youtube,youtube sampler,audio,producers,production,hip-hop production,music,beats" />
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" value="summary">
-  <meta name="twitter:title" content="Youtube Sampler">
-  <meta name="twitter:description" content="A simple website that allows you to easily e-sample off youtube">
+  <meta name="twitter:title" content="Youtube Sampler: The Best Way To Sample Audio From Youtube">
+  <meta name="twitter:description" content="The best way to sample audio from Youtube. Discover and share samples.">
   <meta name="twitter:creator" content="@jahoshuma">
 
+  <link rel="canonical" href="https://ytsampler.com">
+
   <!-- Open Graph data -->
-  <meta property="og:title" content="Youtube Sampler" />
+  <meta property="og:title" content="Youtube Sampler: The Best Way To Sample Audio From Youtube" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ytsampler.com/" />
-  <meta property="og:description" content="A simple website that allows you to easily e-sample off youtube" />
+  <meta property="og:description" content="Youtube Sampler: The Best Way To Sample Audio From Youtube" />
   <meta property="og:site_name" content="ytsampler" />
 
   <link rel="icon" href="/favicon.ico?v=5">
@@ -38,7 +41,6 @@
     }, i[r].l = 1 * new Date(); a = s.createElement(o),
       m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
     })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-
     ga('create', 'UA-85778935-3', 'auto');
     ga('send', 'pageview');
   </script>
@@ -52,13 +54,14 @@
     <div class="container u-max-full-width">
       <div class="row">
         <div id="main-header" class="twelve columns">
-            <div class="total-samples u-pull-right tooltip" title="total samples created">
-              SAMPLES DUG:
-              <%= total %>
-            </div>
-          <div class="header u-pull-left">
+          <div class="total-samples u-pull-right tooltip" title="total samples created">
+            SAMPLES DUG:
+            <%= total %>
+          </div>
+          <div class="header">
             <h1 id="title">YouTube Sampler</h1>
-            <img class="record-logo" height="64" width="64" src="/ytLogo.gif" />
+            <img class="record-logo" src="/ytLogo.gif" />
+            <!-- <span class="tagline">Sampling Made Social</span> -->
           </div>
         </div>
       </div>
@@ -133,7 +136,7 @@
           <% } %>
           ....
           <span class='page-number'>
-            <a id="total-pages" class="page-link <%= totalPages %>" href='/?page=<%= totalPages %>'><%= totalPages %><a/>
+            <a id="total-pages" class="page-link <%= totalPages %>" href='/?page=<%= totalPages %>'><%= totalPages %></a>
           </span>
       </div>
     </div>
@@ -149,17 +152,34 @@
             <div class="sample-stats">
               <span class="sample-number">#<%= sample.id %></span>
               <span class="sample-date"><%= sample.created_at%></span>
-            </div>
-            <div class="sample-title">
-            <a href="<%= sample.src %>" class="sample-link" target="_blank"><%= sample.title.substring(0, 25) %></a>
+              <br />
+              <div class="sample-title">
+                <a href="<%= sample.src %>" class="sample-link" target="_blank">
+                  <%= sample.title.substring(0, 25) %>
+                </a>
+                <span style="display:none;" class="full-title-<%= sample.id %>"><%= sample.sample_src %></span>
+              </div>
             </div>
             <div class="sample-image">
               <img  src="<%= sample.thumbnail %>" /> 
             </div>
-
+            <div class="sample-actions">
+              <div class="like-sample-btn">
+                <% if (cookies.includes('_yts-like-' + sample.id )) { %>
+                  <i id="thumbs-up-<%= sample.id %>" class="fa fa-thumbs-up fa-lg tooltip liked" title="you've liked this" sample="<%= sample.id %>" aria-hidden="true"></i>
+                <% } else { %>
+                <i id="thumbs-up-<%= sample.id %>" class="fa fa-thumbs-up fa-lg tooltip" title="I like this sample!" sample="<%= sample.id %>" aria-hidden="true"></i>
+                <% } %>
+              </div>
+              <div class="download-sample-btn">
+                <i class="fa fa-cloud-download fa-lg tooltip" sample="<%= sample.id %>" title="download sample!" aria-hidden="true"></i>
+              </div>
+              <br />
+              likes: <span id="total-likes-<%= sample.id %>"><%= sample.likes %></span>
+            </div>
             <div class="sample-player ui360">
               <a href="play?sample=<%= sample.sample_src %>"></a>
-            </div> 
+            </div>  
           </li>
       <% }) %>
         </ul>

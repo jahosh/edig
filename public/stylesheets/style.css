@@ -3,6 +3,25 @@ html body {
   width: 100%;
   background-color: #F4F4F4;
 }
+.record-logo {
+  height: 60px;
+  width: 60px;
+}
+.liked {
+  color: grey;
+}
+.sample-actions {
+  text-align: center;
+}
+.like-sample-btn {
+  display: inline;
+  cursor: pointer;
+  margin-right: 5px;
+}
+.download-sample-btn {
+  cursor: pointer;
+  display: inline;
+}
 .sample-date {
   font-size: 12px;
   color: black;
@@ -51,19 +70,12 @@ html body {
   font-weight: bold;
   margin-top: 30px;
 }
-.record-logo {
-  margin-top: 30px;
-}
+
 .section {
   text-align: center;
 }
 .header {
   margin-bottom: 50px;
-}
-.header img {
-  float: left;
-  width: 45px;
-  height: 45px;
 }
 .header h1 {
   position: relative;
@@ -71,9 +83,9 @@ html body {
   margin-bottom: 0px;
 }
 #title {
-  font-size: 34px;
+  font-size: 3em;
   border-bottom: 1px solid black;
-  margin-top: 30px;
+  margin-top: 15px;
 }
 #total {
   display: block;
@@ -199,7 +211,8 @@ hr {
   border-radius: 25px;
   width: 200px;
   height: 300px;
-  padding: 10px;
+  padding: 20px;
+  padding-bottom: 50px;
   margin: 5px;
   margin-bottom:15px;
   color: black;
@@ -220,6 +233,9 @@ hr {
 }
 
 @media (min-width: 300px) {
+  .fa-cloud-download {
+    display: none;
+  }
   #title {
     margin-bottom: 30px;
   }
@@ -262,6 +278,9 @@ hr {
   .sample-link {
     color: black;
   }
+  .sample-card {
+    padding-bottom: 20px;
+  }
   .sample-number{ 
     font-size: 25px;
   }
@@ -269,14 +288,13 @@ hr {
     text-align: center;
   }
   .sample-image {
-    margin-top: 0px;
+    margin-top: 10px;
     text-align: center;
   }
   .sample-player {
     text-align: center;
     display: none;
     margin-top: 5px;
-    padding: 10px;
   }
   .sm2-360ui {
     float: none;
@@ -284,9 +302,30 @@ hr {
   #chrome-ribbon {
     display: none;
   }
+  .tagline {
+    font-style: italic;
+  }
+  .total-samples {
+    display: none;
+  }
+  .record-logo {
+    margin-top: 10px;
+    height: 50px;
+    width: 50px;
+  }
 }
 
+
 @media (min-width: 768px) {
+  .total-samples {
+    display: none;
+  }
+  .fa-cloud-download {
+    display: inline;
+  }
+  #title {
+    font-size: 2.2em;
+  }
   #next {
     margin-right: 80px;
   }
@@ -312,13 +351,16 @@ hr {
     max-height: 213px;
   }
   .sample-title {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 10px;
     margin-bottom: 5px;
     text-align: center;
     display: block;
     padding-bottom: 5px;
     cursor: pointer;
+  }
+  .sample-card {
+    padding-bottom: 50px;
   }
   .sample-number {
     font-size: 16px;
@@ -328,11 +370,9 @@ hr {
     margin-top: 5px;
   }
   #yt_form {
-    margin-top: 75px;
+    margin-top: 15px;
   }
   #chrome-ribbon {
     display: initial;
   }
 }
-
-
