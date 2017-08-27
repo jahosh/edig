@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Youtube Sampler: The Best Way To Sample Audio From Youtube" />
+  <meta name="keywords" content="sampling,youtube,youtube sampler,audio,producers,production,hip-hop production,music,beats"
+  />
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" value="summary">
+  <meta name="twitter:title" content="Youtube Sampler: The Best Way To Sample Audio From Youtube">
+  <meta name="twitter:description" content="The best way to sample audio from Youtube. Discover and share samples.">
+  <meta name="twitter:creator" content="@jahoshuma">
+
+  <link rel="canonical" href="https://ytsampler.com">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Youtube Sampler: The Best Way To Sample Audio From Youtube" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ytsampler.com/" />
+  <meta property="og:description" content="Youtube Sampler: The Best Way To Sample Audio From Youtube" />
+  <meta property="og:site_name" content="ytsampler" />
+
+  <link rel="icon" href="/favicon.ico?v=5">
+
+  <title>Youtube Sampler</title>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.css" />
+  <link rel="stylesheet" type="text/css" href="/stylesheets/360player.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
+  <link rel="stylesheet" type="text/css" href="/lib/jquery.modal.min.css" />
+  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+    ga('create', 'UA-85778935-3', 'auto');
+    ga('send', 'pageview');
+  </script>
+</head>
+
+<body class="site">
+  <div id="chrome-ribbon" class="u-pull-left">
+    <a href="https://chrome.google.com/webstore/detail/youtubesampler/mkpbmhfkieafamnphdedkmmekjegiodc" target="_blank"><img style="position: absolute; top: 10; left: 20; border: 0;" src="/chrome_ribbon.png" alt="Download chrome extension"></a>
+  </div>
+  <div class="site-content">
+    <div class="container u-max-full-width">
+      <div class="row">
+        <div id="main-header" class="twelve columns">
+          <div class="header">
+            <ul id="nav-link-list" class="u-pull-left">
+              <li><a class="nav-links" href="/">HOME</a></li>
+              <li><a class="nav-links" href="/search">SEARCH</a></li>
+            </ul>
+            <a id="logo-link" href="/">
+              <h1 id="title">YouTube Sampler</h1>
+              <img class="record-logo" src="/ytLogo.gif" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div id="search-title" class="twelve columns">
+          <h1>RESULTS</h1>
+          ( <%= results.length %> )
+        </div>
+      </div>
+
+      <div class="row">
+        <div id="search-results" class="twelve columns">
+                <ul id="sample-list" class="flex-container center">
+                  <% results.forEach((sample, i ) => { %>
+                    <li class="sample-card">
+                      <div class="sample-stats">
+                        <span class="sample-number">#<%= sample.id %></span>
+                        <span class="sample-date"><%= sample.created_at%></span>
+                        <br />
+                        <div class="sample-title">
+                          <a href="<%= sample.src %>" class="sample-link" target="_blank">
+                            <%= sample.title.substring(0, 25) %>
+                          </a>
+                          <span style="display:none;" class="full-title-<%= sample.id %>"><%= sample.sample_src %></span>
+                        </div>
+                      </div>
+                      <div class="sample-image">
+                        <img src="<%= sample.thumbnail %>" />
+                      </div>
+                      <div class="sample-actions">
+                        <div class="like-sample-btn">
+                          <% if (cookies.includes('_yts-like-' + sample.id )) { %>
+                            <i id="thumbs-up-<%= sample.id %>" class="fa fa-thumbs-up fa-lg tooltip liked" title="you've liked this" sample="<%= sample.id %>"
+                              aria-hidden="true"></i>
+                            <% } else { %>
+                              <i id="thumbs-up-<%= sample.id %>" class="fa fa-thumbs-up fa-lg tooltip" title="I like this sample!" sample="<%= sample.id %>"
+                                aria-hidden="true"></i>
+                              <% } %>
+                        </div>
+                        <div class="download-sample-btn">
+                          <i class="fa fa-cloud-download fa-lg tooltip" sample="<%= sample.id %>" title="download sample!" aria-hidden="true"></i>
+                        </div>
+                        <br /> likes: <span id="total-likes-<%= sample.id %>"><%= sample.likes %></span>
+                      </div>
+                      <div class="sample-player ui360">
+                        <a href="play?sample=<%= sample.sample_src %>"></a>
+                      </div>
+                    </li>
+                    <% }) %>
+                </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>
+      <a href="https://twitter.com/jahoshuma" target="_blank" class="twitter-link">by @jahoshuma</a>
+    </span>
+  </div>
+
+  <!--Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.4.2/nanobar.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+  <script src="/scripts/berniecode-animator.js"></script>
+  <script src="/lib/jquery.modal.min.js"></script>
+  <script src="/lib/soundmanager2.js"></script>
+  <script src="/scripts/360player.js"></script>
+  <script src="/index.js"></script>
+
+</body>
+
+</html>

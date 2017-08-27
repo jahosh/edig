@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.css" />
   <link rel="stylesheet" type="text/css" href="/stylesheets/360player.css" /> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
+  <link rel="stylesheet" type="text/css" href="/lib/jquery.modal.min.css" />
   <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -54,14 +55,19 @@
     <div class="container u-max-full-width">
       <div class="row">
         <div id="main-header" class="twelve columns">
-          <div class="total-samples u-pull-right tooltip" title="total samples created">
-            SAMPLES DUG:
-            <%= total %>
-          </div>
           <div class="header">
-            <h1 id="title">YouTube Sampler</h1>
+            <ul id="nav-link-list" class="u-pull-left">
+              <li><a class="nav-links" href="/">HOME</a></li>
+              <li><a class="nav-links" href="/search">SEARCH</a></li>
+            </ul>
+            <a id="logo-link" href="/"><h1 id="title">YouTube Sampler</h1>
             <img class="record-logo" src="/ytLogo.gif" />
-            <!-- <span class="tagline">Sampling Made Social</span> -->
+            </a>
+            <div class="total-samples u-pull-right tooltip" title="total samples created">
+              SAMPLES DUG:
+              <%= total %>
+            </div>
+          </div>
           </div>
         </div>
       </div>
@@ -71,8 +77,7 @@
       <div class="row">
         <div class="twelve columns">
           <div class="u-pull-right">
-            </div>
-          
+          </div>
         </div>
       </div>
     </div>
@@ -80,9 +85,20 @@
     <div id="yt_form" class="container u-max-full-width">
       <form id="e-dig-form">
         <div class="row">
-          <div class="twelve colums form-section">
-            <label class="form-labels" for="youtube-link-input">Youtube Link:</label>
-            <input type="text" class="form-control" id="youtube-link-input" placeholder="e.g https://www.youtube.com/watch?v=cv1B0ejhFVE">
+          <div class="six columns form-section">
+            <label class="form-labels" for="youtube-link-input">Youtube Link</label>
+            <input type="text" id="youtube-link-input" placeholder="e.g https://www.youtube.com/watch?v=cv1B0ejhFVE">
+          </div>
+
+          <div class="six columns form-section">
+            <label class="form-labels" for="exampleRecipientInput">Category (optional)</label>
+            <select class="u-full-width" id="exampleRecipientInput">
+              <option value="Option 1">General Purpose</option>
+              <option value="Option 2">One Shot</option>
+              <option value="Option 3">Short & Sweet</option>
+              <option value="Option 3">Vox</option>
+              <option value="Option 3">Percussion</option>
+            </select>
           </div>
         </div>
 
@@ -109,19 +125,22 @@
           </div>
         </div>
       </form>
+
       <div class="row">
         <div class="form-section final-buttons">
           <button id="download-button" class="button button-primary tooltip final-buttons" title="download sample!">Download</button>
           <button id="next-button" class="final-buttons">Start Over</button>
         </div>
       </div>
+
     </div>
   </div>
 
   <div class="row"> 
     <div id="recently-sampled-title" class="">
+      <i id="search-icon" class="fa fa-search fa-2x tooltip" title="search the sample database!"></i>
       <span>
-        <h3>Recently sampled</h3>
+        <h3>Recently Sampled</h3>
       </span>
       <div id="page-numbers">
           <% for (let i=currentPage; i < endPage; i++) {%>
@@ -140,13 +159,29 @@
           </span>
       </div>
     </div>
+
     <div id="next" class="u-pull-right tooltip arrows" title="more samples!">
       <i class="fa fa-arrow-right fa-3x" aria-hidden="true"></i>
     </div>
     <div id="prev" class="arrows">
       <i class="fa fa-arrow-left fa-3x" aria-hidden="true"></i>
     </div>
-      <ul class="flex-container center">
+  </div>
+
+  <div id="search-row" class="row">
+    <div id="search-div" class="eight columns offset-by-two" style="display:none;">
+      <form action="/search/" id="search-form">
+        <label class="form-labels" for="youtube-link-input">Search</label>
+        <!-- <label class="form-labels" for="exampleInputPassword1">Search</label> -->
+        <input id="search-input" name="term"  class="u-full-width" type="text" />
+        <br />
+        <input type="submit" value="search" />
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
+      <ul id="sample-list" class="flex-container center">
       <% samples.forEach((sample, i ) => { %>
           <li class="sample-card">
             <div class="sample-stats">
@@ -187,17 +222,18 @@
   </div>  
 
   <div class="footer">
-    <a href="https://twitter.com/jahoshuma" target="_blank" class="twitter-link">by @jahoshuma</a>
+    <span>
+      <a href="https://twitter.com/jahoshuma" target="_blank" class="twitter-link">by @jahoshuma</a>
+    </span>
   </div>
 
-  <!--Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.4.2/nanobar.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
-   <script type="text/javascript" src="scripts/berniecode-animator.js"></script> 
+  <script src="scripts/berniecode-animator.js"></script> 
+  <script src="/lib/jquery.modal.min.js"></script>
   <script src="/lib/soundmanager2.js"></script>
   <script src="scripts/360player.js"></script>
   <script src="/index.js"></script>
-
 </body>
 </html>
 

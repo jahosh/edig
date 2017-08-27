@@ -21,7 +21,8 @@ $(document).ready(function() {
     , hwaccel: false // Whether to use hardware acceleration
     , position: 'absolute' // Element positioning
   }
-  var socket = io.connect();
+
+  const socket = io.connect();
   const nanobar = new Nanobar();
   socket.on('progress', (progress) => {
     nanobar.go(progress);
@@ -70,6 +71,10 @@ $(document).ready(function() {
   $('.tooltip').tooltipster({
   });
 
+  $("#search-icon").on("click", () => {
+    $("#search-div").toggle("slow");
+  })
+
   $(".download-sample-btn").on("click", (e) => {
     const sample = e.target.attributes[1].nodeValue;
     const url = $(`.full-title-${sample}`).text();
@@ -80,7 +85,7 @@ $(document).ready(function() {
     const sampleId = e.target.attributes[2].nodeValue;
     const cookies = document.cookie.split(" ");
 
-    if (cookies.includes(`_yts-like-${sampleId}=true;`)) {
+    if (cookies.includes(`_yts-like-${sampleId}=true;`) || cookies.includes(`_yts-like-${sampleId}=true`)) {
       alert('you already liked this');
       return;
     }
@@ -122,6 +127,7 @@ $(document).ready(function() {
       return;
     }
 
+
     if ($("#full-song-input").is(":checked")) {
       full = true;
     }
@@ -133,6 +139,11 @@ $(document).ready(function() {
 
     if (!full && !start && !end) {
       alert('must enter times');
+      return;
+    }
+
+    if (start === '0' && end === '0' && !full) {
+      alert('start & end cannot both be 0');
       return;
     }
 
@@ -164,7 +175,6 @@ $(document).ready(function() {
 
   function requestSample(payload) {
     const { link, sTime, eTime, full } = payload;
-
 
     toggleInputs(true);
     $.ajax({
@@ -241,4 +251,40 @@ $(document).ready(function() {
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   };
 
+  function search(term) {
+    $.ajax({
+      url: `/search/?term=${term}`,
+      error: (err) => {
+        console.log(err);
+      },
+      success: (resp) => {
+        renderSearchResults(resp);
+      }
+    });
+  }
+
+  function renderSearchResults(results) {
+    $("#search-results-count").text(results.length);
+    results.forEach((result) => {
+      $("#sample-list").append(`
+        <li class="sample-card">
+          <div class="sample-stats">
+            <span class="sample-number">#${result.id}</span>
+            <span class="sample-date">${result.created_at}</span>
+            <br />
+            <div class="sample-title">
+              <a href="${result.src}" class="sample-link" target="_blank">
+                ${result.title.substring(0, 25)}
+              </a>
+              <span style="display:none;" class="full-title-<%= sample.id %>"><%= sample.sample_src %></span>
+            </div>
+          </div>
+          <div class="sample-image">
+              <img  src="${result.thumbnail}" /> 
+            </div>
+
+        </li>
+      `)
+    })
+  }
 });

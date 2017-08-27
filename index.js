@@ -16,6 +16,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-parser');
+const raw = require('objection').raw;
 
 dotenv.load();
 const Sample = require('./models/Sample');
@@ -94,9 +95,9 @@ app.get('/', (req, res) => {
   const samples = Sample
     .query()
     .orderBy('id', 'desc')
-    .page(page, 6)
+    .page(page, 5)
     .skipUndefined()
-    .limit(6)
+    .limit(5)
     .then(samples => {
       let total = samples.total;
       let finalSamples = samples.results;
@@ -190,6 +191,34 @@ app.post('/like/:id', (req, res) => {
       console.log(e);
     });
 })
+
+app.get('/search', (req, res) => {
+  const { term } = req.query;
+  let cookies = req.cookies;
+  
+  try {
+    cookies = Object.keys(cookies).map(key => cookies[key] = key);
+
+  } catch (e) {
+    console.log(e);
+  }
+
+  Sample
+    .query()
+    .select(raw('*'))
+    .where('title', 'like', `%${term}%`)
+    .then(results => {
+      res.render('search', { results, cookies })
+      // res.json(results);
+    })
+    .catch(e => {
+      console.log(e);
+    });
+
+  // res.render('search');
+
+
+});
 
 server.listen(3000, () => {
   console.log('listening on 3000');
