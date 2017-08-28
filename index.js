@@ -20,7 +20,7 @@ const raw = require('objection').raw;
 
 dotenv.load();
 const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['production']);
+const knex = Knex(knexConfig['development']);
 Model.knex(knex);
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
