@@ -20,7 +20,7 @@ const raw = require('objection').raw;
 
 dotenv.load();
 const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['development']);
+const knex = Knex(knexConfig['production']);
 Model.knex(knex);
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
@@ -101,7 +101,7 @@ app.get('/', (req, res) => {
     .then(samples => {
       let total = samples.total;
       let finalSamples = samples.results;
-      let totalPages = Number(Math.floor(total/6));
+      let totalPages = Number(Math.floor(total/5));
       let currentPage = Number(page);
       let endPage = Number(page) + 5;
 
