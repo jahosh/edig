@@ -31,7 +31,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.css" />
   <link rel="stylesheet" type="text/css" href="/stylesheets/360player.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
-  <link rel="stylesheet" type="text/css" href="/lib/jquery.modal.min.css" />
   <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -72,16 +71,34 @@
 
       <div class="row">
         <div id="search-title" class="twelve columns">
-          <h1>RESULTS</h1>
-          ( <%= results.length %> )
+          <% if (!directHit) {%>
+            <h1 class="search-tagline">RESULTS</h1>
+            ( <%= results.length %> )
+          <% } else { %>
+            <h1 class="search-tagline"> SEARCH </h1>
+          <% } %>
         </div>
       </div>
+
+        <div id="search-row" class="row">
+          <div id="search-div" class="eight columns offset-by-two">
+            <form action="/search/" id="search-form">
+              <input id="search-input" name="term" class="u-full-width" type="text" />
+              <br />
+              <input type="submit" value="DIG" />
+            </form>
+          </div>
+        </div>
 
       <div class="row">
         <div id="search-results" class="twelve columns">
                 <ul id="sample-list" class="flex-container center">
                   <% results.forEach((sample, i ) => { %>
                     <li class="sample-card">
+                      <div class="rotate" id="sample-category">
+                        <%= sample.category.toUpperCase(); %>
+                      </div>
+                      <br />
                       <div class="sample-stats">
                         <span class="sample-number">#<%= sample.id %></span>
                         <span class="sample-date"><%= sample.created_at%></span>
@@ -132,7 +149,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/nanobar/0.4.2/nanobar.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
   <script src="/scripts/berniecode-animator.js"></script>
-  <script src="/lib/jquery.modal.min.js"></script>
   <script src="/lib/soundmanager2.js"></script>
   <script src="/scripts/360player.js"></script>
   <script src="/index.js"></script>

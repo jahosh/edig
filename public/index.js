@@ -40,6 +40,7 @@ $(document).ready(function() {
     $(`.0`).addClass('active-page');
   } else {
     // set the current page as active
+    $("#first-page").toggle();
     $(`.${currentPage}`).addClass('active-page');
   }
 
@@ -48,7 +49,7 @@ $(document).ready(function() {
     $("#next").addClass('disabled');
     $("#next").removeClass('arrows');
     $("#next").attr("title", "end of the road!");
-    $(`.${totalPages}`).addClass('active-page');
+    $(`${totalPages}`).addClass('active-page');
   }
 
 
@@ -118,6 +119,8 @@ $(document).ready(function() {
     e.preventDefault();
 
     const link = $("#youtube-link-input").val();
+    const category = $("#category-input").val();
+
     let start = $("#video-begin-input").val();
     let end = $("#video-end-input").val();
     let full;
@@ -169,16 +172,16 @@ $(document).ready(function() {
     const target = document.getElementById('loading')
     const spinner = new Spinner(opts).spin(target);
     $("#submit").hide();
-    requestSample({ link, sTime, eTime, full });
+    requestSample({ link, sTime, eTime, full, category });
   });
 
 
   function requestSample(payload) {
-    const { link, sTime, eTime, full } = payload;
+    const { link, sTime, eTime, full, category } = payload;
 
     toggleInputs(true);
     $.ajax({
-      url: `/dig?src=${link}&start=${sTime}&end=${eTime}&full=${full}`,
+      url: `/dig?src=${link}&category=${category}&start=${sTime}&end=${eTime}&full=${full}`,
       error: (err) => {
         console.log(err);
       },

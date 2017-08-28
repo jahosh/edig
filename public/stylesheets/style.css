@@ -3,6 +3,26 @@ html body {
   width: 100%;
   background-color: #F4F4F4;
 }
+#sample-category {
+  background-color: #333333;
+  width: 73px;
+  border-radius: 73px;
+  color: white;
+  float: left;
+  margin: -15px;
+  margin-top: inherit;
+  padding: 2px;
+  font-size: 12px;
+  font-style: italic;
+}
+.search-tagline {
+  margin-bottom: 0px;
+}
+#likes-title {
+  display: block;
+  line-height: 0.2;
+  margin-top:10px;
+}
 #logo-link {
   color: black;
 }
@@ -251,7 +271,7 @@ hr {
   background-color: #FFFFFF;
   border-radius: 25px;
   width: 200px;
-  height: 300px;
+  height: 245px;
   padding: 20px;
   padding-bottom: 50px;
   margin: 5px;
@@ -338,7 +358,8 @@ hr {
     color: black;
   }
   .sample-card {
-    padding-bottom: 20px;
+    padding-bottom: 50px;
+    height: 265px;
   }
   .sample-number{ 
     font-size: 25px;
@@ -410,9 +431,6 @@ hr {
     align-items: center;
     flex-direction: row;
   } 
-  .sample-card {
-    max-height: 213px;
-  }
   .sample-title {
     font-size: 12px;
     line-height: 10px;
@@ -438,4 +456,25 @@ hr {
   #chrome-ribbon {
     display: initial;
   }
+}
+
+
+/* special */
+.rotate {
+
+/* Safari */
+-webkit-transform: rotate(-25deg);
+
+/* Firefox */
+-moz-transform: rotate(-25deg);
+
+/* IE */
+-ms-transform: rotate(-25deg);
+
+/* Opera */
+-o-transform: rotate(-25deg);
+
+/* Internet Explorer */
+filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+
 }

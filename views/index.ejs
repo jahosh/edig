@@ -92,12 +92,11 @@
 
           <div class="six columns form-section">
             <label class="form-labels" for="exampleRecipientInput">Category (optional)</label>
-            <select class="u-full-width" id="exampleRecipientInput">
-              <option value="Option 1">General Purpose</option>
-              <option value="Option 2">One Shot</option>
-              <option value="Option 3">Short & Sweet</option>
-              <option value="Option 3">Vox</option>
-              <option value="Option 3">Percussion</option>
+            <select class="u-full-width" id="category-input">
+              <option value="general">General Purpose</option>
+              <option value="oneshot">One Shot</option>
+              <option value="vox">Vox</option>
+              <option value="drums">Drums</option>
             </select>
           </div>
         </div>
@@ -143,19 +142,23 @@
         <h3>Recently Sampled</h3>
       </span>
       <div id="page-numbers">
-          <% for (let i=currentPage; i < endPage; i++) {%>
-            <% if (i === totalPages) {%>
-              <% continue; %>
-            <% } %>  
-            <% if (i <= totalPages) {%>
-              <span style="text-align:center;" class='page-number <%= i %>'>
-                <a class="page-link <%= i %>" href='/?page=<%= i %>'><%= i %> </a>
-              </span>
-            <% } %>
+        <span id="first-page" class='page-number' style="display:none;">
+          <a class="page-link 0" href="/?page=0">0</a>
+          ...
+        </span>
+        <% for (let i=currentPage; i < endPage; i++) {%>
+          <% if (i === totalPages) {%>
+            <% continue; %>
+          <% } %>  
+          <% if (i <= totalPages) {%>
+            <span style="text-align:center;" class='page-number <%= i %>'>
+              <a class="page-link <%= i %>" href='/?page=<%= i %>'><%= i %> </a>
+            </span>
           <% } %>
-          ....
+        <% } %>
           <span class='page-number'>
-            <a id="total-pages" class="page-link <%= totalPages %>" href='/?page=<%= totalPages %>'><%= totalPages %></a>
+            ...
+            <a id="total-pages" class="page-link <%= totalPages %>" href="/?page=<%= totalPages %>"><%= totalPages %></a>
           </span>
       </div>
     </div>
@@ -172,7 +175,6 @@
     <div id="search-div" class="eight columns offset-by-two" style="display:none;">
       <form action="/search/" id="search-form">
         <label class="form-labels" for="youtube-link-input">Search</label>
-        <!-- <label class="form-labels" for="exampleInputPassword1">Search</label> -->
         <input id="search-input" name="term"  class="u-full-width" type="text" />
         <br />
         <input type="submit" value="search" />
@@ -184,6 +186,8 @@
       <ul id="sample-list" class="flex-container center">
       <% samples.forEach((sample, i ) => { %>
           <li class="sample-card">
+            <div class="rotate" id="sample-category"><%= sample.category.toUpperCase(); %></div>
+            <br />
             <div class="sample-stats">
               <span class="sample-number">#<%= sample.id %></span>
               <span class="sample-date"><%= sample.created_at%></span>
@@ -209,8 +213,8 @@
               <div class="download-sample-btn">
                 <i class="fa fa-cloud-download fa-lg tooltip" sample="<%= sample.id %>" title="download sample!" aria-hidden="true"></i>
               </div>
-              <br />
-              likes: <span id="total-likes-<%= sample.id %>"><%= sample.likes %></span>
+              <span id="likes-title">likes</span>
+              <span id="total-likes-<%= sample.id %>"><%= sample.likes %></span>
             </div>
             <div class="sample-player ui360">
               <a href="play?sample=<%= sample.sample_src %>"></a>

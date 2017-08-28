@@ -24,7 +24,7 @@ const knex = Knex(knexConfig['production']);
 Model.knex(knex);
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
-    const { src, start, end, full } = req.query;
+    const { src, start, end, full, category } = req.query;
     const downloadFull = (full == 'true');
     const meta = getMetaData(src)
       .then((metadata) => {
@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
         let thumbnail = metadata.thumbnail_url;
         let endTime = end > length ? length : end;
 
-        const sample = { title, thumbnail, src };
+        const sample = { title, thumbnail, src, category };
 
         dlVid(src, io)
           .then((vid) => {
@@ -114,8 +114,15 @@ app.get('/', (req, res) => {
       } catch(e) {
         console.log(e);
       }
-      
-      res.render('index', { samples: finalSamples, total, totalPages, currentPage, endPage, cookies });
+
+      res.render('index', { 
+        samples: finalSamples, 
+        total, 
+        totalPages, 
+        currentPage, 
+        endPage, 
+        cookies, 
+      });
     })
     .catch(e => {
       console.log(e);
@@ -202,22 +209,21 @@ app.get('/search', (req, res) => {
   } catch (e) {
     console.log(e);
   }
-
+  
+  if (!term) {
+    res.status(200).render('search', { results: [], cookies, directHit: true });
+    return;
+  }
   Sample
     .query()
     .select(raw('*'))
     .where('title', 'like', `%${term}%`)
     .then(results => {
-      res.render('search', { results, cookies })
-      // res.json(results);
+      res.render('search', { results, cookies, directHit: false })
     })
     .catch(e => {
       console.log(e);
     });
-
-  // res.render('search');
-
-
 });
 
 server.listen(3000, () => {
