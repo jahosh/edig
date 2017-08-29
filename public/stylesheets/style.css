@@ -3,6 +3,17 @@ html body {
   width: 100%;
   background-color: #F4F4F4;
 }
+#error {
+  font-size: 16px;
+  font-style: bold;
+  background-color: rgb(139, 56, 56);
+  color: white;
+  width: 150px;
+  text-align: center;
+  display: contents;
+  border-radius: 10px;
+  cursor: pointer;
+}
 #sample-category {
   background-color: #333333;
   width: 73px;

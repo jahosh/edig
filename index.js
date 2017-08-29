@@ -20,7 +20,7 @@ const raw = require('objection').raw;
 
 dotenv.load();
 const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['production']);
+const knex = Knex(knexConfig['development']);
 Model.knex(knex);
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
@@ -32,6 +32,12 @@ io.on('connection', (socket) => {
         let length = metadata.length_seconds;
         let thumbnail = metadata.thumbnail_url;
         let endTime = end > length ? length : end;
+
+        // 6 min is seconds
+        if (length > 360) {
+          res.status(400).send({ error: 'sample is too long!' });
+          return;
+        }
 
         const sample = { title, thumbnail, src, category };
 

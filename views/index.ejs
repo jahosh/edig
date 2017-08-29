@@ -76,13 +76,14 @@
     <div class="form container u-max-full-width">
       <div class="row">
         <div class="twelve columns">
-          <div class="u-pull-right">
+          <div class="">
           </div>
         </div>
       </div>
     </div>
 
     <div id="yt_form" class="container u-max-full-width">
+      <div id="error" class="tooltip" style="display:none;" title="anything over 6 minutes is a no go."></div>
       <form id="e-dig-form">
         <div class="row">
           <div class="six columns form-section">
@@ -217,7 +218,7 @@
               <span id="total-likes-<%= sample.id %>"><%= sample.likes %></span>
             </div>
             <div class="sample-player ui360">
-              <a href="play?sample=<%= sample.sample_src %>"></a>
+              <a href="/play?sample=<%= sample.sample_src %>"></a>
             </div>  
           </li>
       <% }) %>

@@ -180,12 +180,20 @@ $(document).ready(function() {
     const { link, sTime, eTime, full, category } = payload;
 
     toggleInputs(true);
+    $("#error").empty().toggle();
+
     $.ajax({
       url: `/dig?src=${link}&category=${category}&start=${sTime}&end=${eTime}&full=${full}`,
       error: (err) => {
-        console.log(err);
+        // append error msg
+        $("#error").fadeIn("slow");
+        $("#error").append(err.responseJSON.error);
+        $("#loading").fadeOut("slow");
+        $("#submit").toggle();
+        toggleInputs(false);
       },
       success: (resp) => {
+        console.log(resp);
         const result = JSON.parse(resp);
 
         $("#loading").fadeOut("slow");
