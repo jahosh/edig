@@ -17,22 +17,44 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const cookieParser = require('cookie-parser');
 const raw = require('objection').raw;
+const cors = require('cors');
+const request = require('request-promise');
+io.origins('http://localhost:8000');
+
+const AWS = require('aws-sdk');
+
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+});
+
+const s3 = new AWS.S3();
 
 dotenv.load();
+app.options('*', cors());
+app.use(cors());
+
 const Sample = require('./models/Sample');
 const knex = Knex(knexConfig['development']);
 Model.knex(knex);
+
+
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
     const { src, start, end, full, category } = req.query;
-    const downloadFull = (full == 'true');
+
+    let s = Number(start);
+    let e = Number(end);
+    const downloadFull = full === 'False' ? false : true;
     const meta = getMetaData(src)
-      .then((metadata) => {
+      .then( async (metadata) => {
         let title = metadata.title;
         let length = metadata.length_seconds;
-        let thumbnail = metadata.thumbnail_url;
+        let thumbnailSrc = metadata.thumbnail_url.substring(0, 35);
         let endTime = end > length ? length : end;
+        let thumbnail = await getProperImage(thumbnailSrc, 0);
 
+        console.log('this is thumbnail', thumbnail);
         // 6 min is seconds
         if (length > 360) {
           res.status(400).send({ error: 'sample is too long!' });
@@ -47,26 +69,28 @@ io.on('connection', (socket) => {
             const name = slugify(`${title}-${randomId}.mp3`);
             const command = processVideo(vid, downloadFull, name, start, end, length);
             sample.sample_src = name;
-
             command.run();
             command.on('error', (err, stdout, stderr) => {
               console.log(err.message, err, stderr);
               res.send(JSON.stringify('error'))
             });
             command.on('end', () => {
-
-              Sample
-                .query()
-                .insertAndFetch(sample)
+              
+              // upload to S3
+              uploadToS3(vid, name, io)
+                .then((data) => {
+                  // song successfully uploaded to s3
+                  console.log(data);
+                  res.end(JSON.stringify({
+                    link: data.Location,
+                    title,
+                    thumbnail,
+                    sample
+                  }));
+                })
                 .catch(e => {
                   console.log(e);
                 });
-
-              res.end(JSON.stringify({
-                link: `temp/${name}`,
-                title,
-                thumbnail
-              }));
             });
           })
           .catch(e => {
@@ -153,18 +177,7 @@ app.get('/download', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      // try {
-      //   fs.unlink(link, (err) => {
-      //     if (err) {
-      //       console.log(err);
-      //       res.end();
-      //     } else {
-      //       res.end('file downloaded');
-      //     }
-      //   });
-      // } catch(e) {
-      //   console.log(e);
-      // }
+
     }
   });
 });
@@ -197,7 +210,6 @@ app.post('/like/:id', (req, res) => {
       if(s === 1) {
         res.cookie(`_yts-like-${id}`, 'true', {expire: new Date() + 9999});
         res.status(201).end();
-        console.log(s);
       }
     })
     .catch(e => {
@@ -286,8 +298,8 @@ function processVideo(vid, full, name, start, end, length) {
   if (full) {
     start = 0;
     end = length;
+    console.log('full!');
   }
-
   return ffmpeg(vid)
     .noVideo()
     .audioCodec('libmp3lame')
@@ -295,5 +307,62 @@ function processVideo(vid, full, name, start, end, length) {
     .seekInput(start)
     .duration(end - start)
     .output(`temp/${name}`);
+}
+
+function uploadToS3(file, name, socket) {
+  return new Promise((fulfill, reject) => {
+    const params = {
+      Bucket: process.env.S3_DEV_BUCKET,
+      Key: name,
+      Body: fs.createReadStream(`temp/${name}`),
+      ContentType: 'audio/mpeg',
+      ACL: 'public-read'
+    };
+
+    const upload = s3.upload(params)
+      .on('httpUploadProgress', (e) => {
+        console.log('progress:', e.loaded / e.total);
+        let uploadProgress = e.loaded/e.total;
+        console.log(uploadProgress, typeof uploadProgress);
+        if (uploadProgress === 1) {
+          socket.emit('final-processing', 'final-processing');
+        }
+      })
+      .send((err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      return fulfill(data);
+    });
+  });
+}
+
+
+async function getProperImage(src, attempt) {
+  let response;
+  console.log('running');
+  const keys = {
+    '0': 'maxresdefault.jpg',
+    '1': 'mqdefault.jpg',
+    '2': 'default.jpg'
+  }
+
+  try {
+    response = await request({
+      method: 'GET',
+      uri: `${src}${keys[attempt]}`,
+      resolveWithFullResponse: true
+    });
+
+    if (response.statusCode === 200) {
+      console.log(src + keys[attempt]);
+      return src + keys[attempt];
+    }
+    console.log('here');
+
+    console.log(response.statusCode);
+  } catch (e) {
+    return getProperImage(src, attempt + 1);
+  }
 }
 
