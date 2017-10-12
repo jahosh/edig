@@ -14,29 +14,39 @@ const knexConfig = require('./knexfile');
 const Knex = require('knex');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
 const cookieParser = require('cookie-parser');
 const raw = require('objection').raw;
 const cors = require('cors');
 const request = require('request-promise');
+const https = require('https');
+const io = require('socket.io')(server);
 io.origins('http://localhost:8000');
 
 const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+const Sample = require('./models/Sample');
+const knex = Knex(knexConfig['development']);
+Model.knex(knex);
 
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
-const s3 = new AWS.S3();
-
 dotenv.load();
 app.options('*', cors());
 app.use(cors());
+app.set('view engine', 'ejs');
+app.use(cookieParser());
+app.use(compression());
+app.use(express.static(__dirname + '/public'));
+app.use(morgan('dev'));
+app.use(helmet());
 
-const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['development']);
-Model.knex(knex);
+
+server.listen(3001, () => {
+  console.log('listening on 3001');
+});
 
 
 io.on('connection', (socket) => {
@@ -104,14 +114,6 @@ io.on('connection', (socket) => {
       });
   });
 });
-
-app.set('view engine', 'ejs');
-app.use(cookieParser());
-app.use(compression());
-app.use(express.static(__dirname + '/public'));
-app.use(morgan('dev'));
-app.use(helmet());
-
 
 app.get('/', (req, res) => {
   let { page } = req.query;
@@ -244,10 +246,6 @@ app.get('/search', (req, res) => {
     });
 });
 
-server.listen(3000, () => {
-  console.log('listening on 3000');
-});
-
 function dlVid(src, socket) {
   return new Promise((fulfill, reject) => {
     try {
@@ -340,7 +338,6 @@ function uploadToS3(file, name, socket) {
 
 async function getProperImage(src, attempt) {
   let response;
-  console.log('running');
   const keys = {
     '0': 'maxresdefault.jpg',
     '1': 'mqdefault.jpg',
@@ -358,8 +355,6 @@ async function getProperImage(src, attempt) {
       console.log(src + keys[attempt]);
       return src + keys[attempt];
     }
-    console.log('here');
-
     console.log(response.statusCode);
   } catch (e) {
     return getProperImage(src, attempt + 1);
