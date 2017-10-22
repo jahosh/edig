@@ -52,6 +52,7 @@ server.listen(3001, () => {
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
     const { src, start, end, full, category } = req.query;
+    console.log(src, start, end, full)
 
     let s = Number(start);
     let e = Number(end);
@@ -64,9 +65,15 @@ io.on('connection', (socket) => {
         let endTime = end > length ? length : end;
         let thumbnail = await getProperImage(thumbnailSrc, 0);
 
-        console.log('this is thumbnail', thumbnail);
+        let sampleLength = Math.abs(start - end);
+        console.log(sampleLength);
         // 6 min is seconds
-        if (length > 360) {
+
+        if (sampleLength > 60) {
+          res.status(400).send({ error: 'max sample duration: 1 minute'});
+          return;
+        }
+        if (length > 600) {
           res.status(400).send({ error: 'sample is too long!' });
           return;
         }
@@ -82,7 +89,7 @@ io.on('connection', (socket) => {
             command.run();
             command.on('error', (err, stdout, stderr) => {
               console.log(err.message, err, stderr);
-              res.send(JSON.stringify('error'))
+              res.status(400).send(JSON.stringify('error'))
             });
             command.on('end', () => {
               
@@ -91,7 +98,7 @@ io.on('connection', (socket) => {
                 .then((data) => {
                   // song successfully uploaded to s3
                   console.log(data);
-                  res.end(JSON.stringify({
+                  res.status(201).end(JSON.stringify({
                     link: data.Location,
                     title,
                     thumbnail,
@@ -105,17 +112,21 @@ io.on('connection', (socket) => {
           })
           .catch(e => {
             console.log(e);
-            res.end('error');
+            res.status(400).end('error');
           });
       })
       .catch(e => {
         console.log('error here', e);
-        res.end(JSON.stringify({ e, msg: 'unable to locate video, please try another link' }));
+        res.status(400).end(JSON.stringify({ e, msg: 'unable to locate video, please try another link' }));
       });
   });
 });
 
 app.get('/', (req, res) => {
+
+  res.end("no-results")
+  return;
+
   let { page } = req.query;
   let cookies = req.cookies;
 
@@ -343,7 +354,6 @@ async function getProperImage(src, attempt) {
     '1': 'mqdefault.jpg',
     '2': 'default.jpg'
   }
-
   try {
     response = await request({
       method: 'GET',
@@ -352,10 +362,8 @@ async function getProperImage(src, attempt) {
     });
 
     if (response.statusCode === 200) {
-      console.log(src + keys[attempt]);
       return src + keys[attempt];
     }
-    console.log(response.statusCode);
   } catch (e) {
     return getProperImage(src, attempt + 1);
   }
