@@ -52,13 +52,13 @@ server.listen(3001, () => {
 io.on('connection', (socket) => {
   app.get('/dig', (req, res) => {
     const { src, start, end, full, category } = req.query;
-    console.log(src, start, end, full)
+    const downloadFull = full === 'False' ? false : true;
 
     let s = Number(start);
     let e = Number(end);
-    const downloadFull = full === 'False' ? false : true;
+
     const meta = getMetaData(src)
-      .then( async (metadata) => {
+      .then(async (metadata) => {
         let title = metadata.title;
         let length = metadata.length_seconds;
         let thumbnailSrc = metadata.thumbnail_url.substring(0, 35);
@@ -66,9 +66,7 @@ io.on('connection', (socket) => {
         let thumbnail = await getProperImage(thumbnailSrc, 0);
 
         let sampleLength = Math.abs(start - end);
-        console.log(sampleLength);
         // 6 min is seconds
-
         if (sampleLength > 60) {
           res.status(400).send({ error: 'max sample duration: 1 minute'});
           return;
@@ -81,7 +79,7 @@ io.on('connection', (socket) => {
         const sample = { title, thumbnail, src, category };
 
         dlVid(src, io)
-          .then((vid) => {
+          .then((vid, socket, status) => {
             const randomId = randomGen();
             const name = slugify(`${title}-${randomId}.mp3`);
             const command = processVideo(vid, downloadFull, name, start, end, length);
@@ -94,10 +92,9 @@ io.on('connection', (socket) => {
             command.on('end', () => {
               
               // upload to S3
-              uploadToS3(vid, name, io)
-                .then((data) => {
+              uploadToS3(vid, name, io, status)
+                .then((data, status) => {
                   // song successfully uploaded to s3
-                  console.log(data);
                   res.status(201).end(JSON.stringify({
                     link: data.Location,
                     title,
@@ -263,24 +260,27 @@ function dlVid(src, socket) {
       const dl = ytdl(src, {
         filter: 'audioonly'
       });
+ 
 
       dl.on('progress', (c, td, tdl) => {
         const floatDownloaded = td/tdl;
         let progress = (floatDownloaded * 100).toFixed(2);
-        socket.emit('progress', progress);
+        // if (status) {
+        //   socket.emit('progress', 100);
+        //   return;
+        // }
+        // socket.emit('progress', progress);
       });
       
       dl.on('info', (info) => {
-
+        console.log(info);
       });
 
       dl.on('end', () => {
         socket.emit('progress', 100);
       });
 
-      dl.on('data', () => {
-      })
-      fulfill(dl);
+      fulfill(dl, io);
     } catch(e) {
       return reject(e);
     }
