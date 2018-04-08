@@ -9,31 +9,24 @@ const compression = require('compression');
 const slugify = require('slugify');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const Model = require('objection').Model;
-const knexConfig = require('./knexfile');
-const Knex = require('knex');
 const app = express();
 const server = require('http').createServer(app);
 const cookieParser = require('cookie-parser');
-const raw = require('objection').raw;
 const cors = require('cors');
 const request = require('request-promise');
 const https = require('https');
 const io = require('socket.io')(server);
 io.origins('http://localhost:8000');
+dotenv.load();
 
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
-const Sample = require('./models/Sample');
-const knex = Knex(knexConfig['development']);
-Model.knex(knex);
 
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
-dotenv.load();
 app.options('*', cors());
 app.use(cors());
 app.set('view engine', 'ejs');
@@ -43,261 +36,85 @@ app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev'));
 app.use(helmet());
 
-
 server.listen(3001, () => {
   console.log('listening on 3001');
 });
 
-
 io.on('connection', (socket) => {
-  app.get('/dig', (req, res) => {
+  app.get('/dig', async (req, res) => {
     const { src, start, end, full, category } = req.query;
     const downloadFull = full === 'False' ? false : true;
 
     let s = Number(start);
     let e = Number(end);
 
-    const meta = getMetaData(src)
-      .then(async (metadata) => {
-        let title = metadata.title;
-        let length = metadata.length_seconds;
-        let thumbnailSrc = metadata.thumbnail_url.substring(0, 35);
-        let endTime = end > length ? length : end;
-        let thumbnail = await getProperImage(thumbnailSrc, 0);
-
-        let sampleLength = Math.abs(start - end);
-        // 6 min is seconds
-        if (sampleLength > 60) {
-          res.status(400).send({ error: 'max sample duration: 1 minute'});
-          return;
-        }
-        if (length > 600) {
-          res.status(400).send({ error: 'sample is too long!' });
-          return;
-        }
-
-        const sample = { title, thumbnail, src, category };
-
-        dlVid(src, io)
-          .then((vid, socket, status) => {
-            const randomId = randomGen();
-            const name = slugify(`${title}-${randomId}.mp3`);
-            const command = processVideo(vid, downloadFull, name, start, end, length);
-            sample.sample_src = name;
-            command.run();
-            command.on('error', (err, stdout, stderr) => {
-              console.log(err.message, err, stderr);
-              res.status(400).send(JSON.stringify('error'))
-            });
-            command.on('end', () => {
-              
-              // upload to S3
-              uploadToS3(vid, name, io, status)
-                .then((data, status) => {
-                  // song successfully uploaded to s3
-                  res.status(201).end(JSON.stringify({
-                    link: data.Location,
-                    title,
-                    thumbnail,
-                    sample
-                  }));
-                })
-                .catch(e => {
-                  console.log(e);
-                });
-            });
-          })
-          .catch(e => {
-            console.log(e);
-            res.status(400).end('error');
-          });
-      })
-      .catch(e => {
-        console.log('error here', e);
-        res.status(400).end(JSON.stringify({ e, msg: 'unable to locate video, please try another link' }));
-      });
-  });
-});
-
-app.get('/', (req, res) => {
-
-  res.end("no-results")
-  return;
-
-  let { page } = req.query;
-  let cookies = req.cookies;
-
-  if (!page) {
-    page = 0
-    currentPage = 1;
-  }
-
-  const samples = Sample
-    .query()
-    .orderBy('id', 'desc')
-    .page(page, 5)
-    .skipUndefined()
-    .limit(5)
-    .then(samples => {
-      let total = samples.total;
-      let finalSamples = samples.results;
-      let totalPages = Number(Math.floor(total/5));
-      let currentPage = Number(page);
-      let endPage = Number(page) + 5;
-
-      if (currentPage === totalPages) {
-        endPage = currentPage;
-      }
-      try {
-        cookies = Object.keys(cookies).map(key => cookies[key] = key);
-
-      } catch(e) {
-        console.log(e);
-      }
-
-      res.render('index', { 
-        samples: finalSamples, 
-        total, 
-        totalPages, 
-        currentPage, 
-        endPage, 
-        cookies, 
-      });
-    })
-    .catch(e => {
-      console.log(e);
-      res.render('something went wrong')
-    });
-});
-
-
-app.get('/download', (req, res) => {
-  let { link, slug } = req.query;
-
-  if (slug) {
-    link = 'temp/' + slugify(`${link}`);
-  }
-
-  if (!link || !link.includes('temp')) {
-    res.redirect('/');
-    return;
-  }
-
-  res.download(link, function (err) {
-    if (err) {
-      console.log(err);
-    } else {
-
-    }
-  });
-});
-
-app.get('/play', (req, res) => {
-  const { sample } = req.query;
-  const exists = fs.existsSync(`temp/${sample}`);
-
-  if (!exists) {
-    res.end('no file');
-  } else {
-    const file = fs.createReadStream(`temp/${sample}`);
-    file.pipe(res);
-  }
-});
-
-app.post('/like/:id', (req, res) => {
-  const { id } = req.params;
-
-  if (req.cookies[`_yts-like-${id}`]) {
-    res.end('already liked!');
-    return;
-  }
-
-  Sample
-    .query()
-    .where('id', '=', id)
-    .increment('likes', 1)
-    .then((s) => {
-      if(s === 1) {
-        res.cookie(`_yts-like-${id}`, 'true', {expire: new Date() + 9999});
-        res.status(201).end();
-      }
-    })
-    .catch(e => {
-      console.log(e);
-    });
-})
-
-app.get('/search', (req, res) => {
-  const { term } = req.query;
-  let cookies = req.cookies;
-  
-  try {
-    cookies = Object.keys(cookies).map(key => cookies[key] = key);
-
-  } catch (e) {
-    console.log(e);
-  }
-  
-  if (!term) {
-    res.status(200).render('search', { results: [], cookies, directHit: true });
-    return;
-  }
-  Sample
-    .query()
-    .select(raw('*'))
-    .where('title', 'like', `%${term}%`)
-    .then(results => {
-      res.render('search', { results, cookies, directHit: false })
-    })
-    .catch(e => {
-      console.log(e);
-    });
-});
-
-function dlVid(src, socket) {
-  return new Promise((fulfill, reject) => {
     try {
-      const dl = ytdl(src, {
-        filter: 'audioonly'
+      const metadata = await getMetaData(src);
+      const title = metadata.title;
+      const length = metadata.length_seconds;
+      const thumbnailSrc = metadata.thumbnail_url.substring(0, 35);
+      const endTime = end > length ? length : end;
+      const thumbnail = await getProperImage(thumbnailSrc, 0);
+  
+      const sampleLength = Math.abs(start - end);
+      // 6 min is seconds
+      if (sampleLength > 60) {
+        res.status(400).send({ error: 'max sample duration: 1 minute'});
+        return;
+      }
+      if (length > 600) {
+        res.status(400).send({ error: 'sample is too long!' });
+        return;
+      }
+  
+      const sample = { title, thumbnail, src, category };
+  
+      const vid = await dlVid(src, io)
+      const randomId = randomGen();
+      const name = slugify(`${title}-${randomId}.mp3`);
+      const command = processVideo(vid, downloadFull, name, start, end, length);
+      sample.sample_src = name;
+      command.run();
+      command.on('error', (err, stdout, stderr) => {
+        return res.status(400).send(JSON.stringify('error'))
       });
- 
+      command.on('end', async() => {
+        // upload to S3
+        try {
+          const { Location:link } = await uploadToS3(vid, name, io);
 
-      dl.on('progress', (c, td, tdl) => {
-        const floatDownloaded = td/tdl;
-        let progress = (floatDownloaded * 100).toFixed(2);
-        // if (status) {
-        //   socket.emit('progress', 100);
-        //   return;
-        // }
-        // socket.emit('progress', progress);
+          res.status(201).end(JSON.stringify({
+            link,
+            title,
+            thumbnail,
+            sample
+          }));
+        } catch(e) {
+          res.status(400);
+        }
       });
-      
-      dl.on('info', (info) => {
-        console.log(info);
-      });
-
-      dl.on('end', () => {
-        socket.emit('progress', 100);
-      });
-
-      fulfill(dl, io);
-    } catch(e) {
-      return reject(e);
+    } catch (e) {
+      return res.status(400).end(JSON.stringify({ e, msg: 'unable to locate video, please try another link' }));
     }
   });
-}
+});
 
-function getMetaData(src) {
-  return new Promise((fulfill, reject) => {
-    ytdl.getInfo(src, (err, info) => {
-      if (err) {
-        reject(err);
-      } else {
-        fulfill(info);
-      }
-    });
-  });
-}
+async function dlVid(src, socket) {
+    try {
+      const dl = ytdl(src, { filter: 'audioonly' });
+      return dl;
+    } catch(e) {
+      throw e;
+    }
+};
+
+async function getMetaData(src) {
+    try {
+      return await ytdl.getInfo(src);
+    } catch(e) {
+      throw e;
+    }
+};
 
 function randomGen() {
   return Math.floor((Math.random() * 10000000) + 1);
@@ -307,7 +124,6 @@ function processVideo(vid, full, name, start, end, length) {
   if (full) {
     start = 0;
     end = length;
-    console.log('full!');
   }
   return ffmpeg(vid)
     .noVideo()
@@ -318,8 +134,7 @@ function processVideo(vid, full, name, start, end, length) {
     .output(`temp/${name}`);
 }
 
-function uploadToS3(file, name, socket) {
-  return new Promise((fulfill, reject) => {
+async function uploadToS3(file, name, socket) {
     const params = {
       Bucket: process.env.S3_DEV_BUCKET,
       Key: name,
@@ -327,25 +142,15 @@ function uploadToS3(file, name, socket) {
       ContentType: 'audio/mpeg',
       ACL: 'public-read'
     };
-
-    const upload = s3.upload(params)
+    
+    return await s3.upload(params)
       .on('httpUploadProgress', (e) => {
-        console.log('progress:', e.loaded / e.total);
         let uploadProgress = e.loaded/e.total;
-        console.log(uploadProgress, typeof uploadProgress);
         if (uploadProgress === 1) {
           socket.emit('final-processing', 'final-processing');
         }
-      })
-      .send((err, data) => {
-      if (err) {
-        return reject(err);
-      }
-      return fulfill(data);
-    });
-  });
-}
-
+      }).promise();
+};
 
 async function getProperImage(src, attempt) {
   let response;
@@ -368,4 +173,3 @@ async function getProperImage(src, attempt) {
     return getProperImage(src, attempt + 1);
   }
 }
-
